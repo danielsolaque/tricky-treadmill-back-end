@@ -31,7 +31,7 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const { title, description, category, brand, model, author, is_archive } =
+  const { title, description, category, brand, model, author } =
     req.body;
 
   const date = new Date().toISOString(); // "2023/02/15T21:39:25"
@@ -40,11 +40,11 @@ router.post("/", (req, res) => {
     .query(
       `
       INSERT INTO treadmills(title, description, category, brand, model, author, is_archive, created_at) 
-      VALUES ('${title}', '${description}', '${category}', '${brand}', '${model}', '${author}', '${is_archive}', '${date}')
+      VALUES ('${title}', '${description}', '${category}', '${brand}', '${model}', '${author}', '${false}', '${date}')
     `
     )
     .then(() => res.send("Se creo el review correctamente"))
-    .catch((err) => console.log(err));
+    .catch((err) => res.status(500).send(err));
 });
 
 router.put("/:id", (req, res) => {

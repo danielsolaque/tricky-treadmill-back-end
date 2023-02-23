@@ -4,7 +4,7 @@ const db = new Client({
   user: process.env.USER_DB,
   password: process.env.PASSWORD,
   host: process.env.HOST,
-  port: process.env.PORT,
+  port: process.env.PG_PORT,
   database: process.env.DATABASE,
 });
 
