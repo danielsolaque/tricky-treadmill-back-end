@@ -20,12 +20,13 @@ db.connect()
         brand TEXT,
         model TEXT,
         author TEXT,
+        thumbnail_url TEXT,
         is_archive BOOLEAN,
         created_at TIMESTAMP
       );`
     )
   )
-  .then(() => console.log("All good"))
+  .then(() => console.log("Data base is properly connected"))
   .catch((err) => console.log(err));
 
 module.exports = db;

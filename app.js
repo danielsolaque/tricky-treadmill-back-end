@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config(); ///el ejecutador del de la variable de entorno
 
 const cors = require("cors");
 const server = require("express");
@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 
 app.use("/treadmills", treadmillsController);
 
-app.get("/*", (req, res) => {
+app.get("/*", (req, res) => { ///un manejador para las rutas que no sean ninguna de las anteriores
   res.status(404).send("Page doesn't exist");
 });
 

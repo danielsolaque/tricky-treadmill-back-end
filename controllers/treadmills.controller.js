@@ -1,5 +1,13 @@
+const multer = require("multer");
+const {
+  uploadImage,
+  isValidImgExtension,
+} = require("../services/imagesUploading.service");
+
 const router = require("express").Router();
 const db = require("../database/client");
+
+const fileMiddleware = multer({ dest: "uploads/" });
 
 //Get a list with all the reviews.
 router.get("/", (req, res) => {
@@ -30,31 +38,60 @@ router.get("/:id", (req, res) => {
     .catch((error) => console.log(error));
 });
 
-router.post("/", (req, res) => {
-  const { title, description, category, brand, model, author } =
-    req.body;
+router.post("/", fileMiddleware.single("thumbnail"), (req, res) => {
+  const { title, description, category, brand, model, author } = req.body;
+  const thumbnail = req.file;
 
-  const date = new Date().toISOString(); // "2023/02/15T21:39:25"
+  if (!isValidImgExtension(thumbnail.mimetype)) {
+    return res.status(400).send("Invalid image");
+  }
 
-  return db
-    .query(
-      `
-      INSERT INTO treadmills(title, description, category, brand, model, author, is_archive, created_at) 
-      VALUES ('${title}', '${description}', '${category}', '${brand}', '${model}', '${author}', '${false}', '${date}')
-    `
-    )
-    .then(() => res.send("Se creo el review correctamente"))
+  return uploadImage(thumbnail.path, { public_id: thumbnail.filename })
+    .then((imgResponse) => {
+      const date = new Date().toISOString(); // "2023/02/15T21:39:25"
+
+      return db
+        .query(
+          `
+            INSERT INTO treadmills(title, description, category, brand, model, author, thumbnail_url, is_archive, created_at) 
+            VALUES (
+              '${title}', 
+              '${description}', 
+              '${category}', 
+              '${brand}', 
+              '${model}', 
+              '${author}', 
+              '${imgResponse.url}', 
+              '${false}', 
+              '${date}'
+            )
+          `
+        )
+        .then(() => res.send("The review was created correctly"))
+        .catch((err) => {
+          console.log(err);
+
+          res.status(500).send(err);
+        });
+    })
     .catch((err) => res.status(500).send(err));
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", fileMiddleware.single("thumbnail"), (req, res) => {
   const id = req.params.id;
   const { title, description, category, brand, model, author, is_archive } =
     req.body;
+  const thumbnail = req.file;
 
-  return db
-    .query(
-      `
+  if (!isValidImgExtension(thumbnail.mimetype)) {
+    return res.status(400).send("Invalid image");
+  }
+
+  return uploadImage(thumbnail.path, { public_id: thumbnail.filename })
+    .then((imgResponse) => {
+      return db
+        .query(
+          `
             UPDATE treadmills
             SET 
               title = '${title}',
@@ -63,12 +100,15 @@ router.put("/:id", (req, res) => {
               brand =  '${brand}',
               model = '${model}',
               author = '${author}',
+              thumbnail_url = '${imgResponse.url}',
               is_archive = '${is_archive}'
             WHERE id = ${id};
        `
-    )
-    .then(() => res.send("Se actualizo el review correctamente"))
-    .catch((err) => console.log(err));
+        )
+        .then(() => res.send("The review has been updated correctly"))
+        .catch((err) => console.log(err));
+    })
+    .catch((err) => res.status(500).send(err));
 });
 
 router.delete("/:id", (req, res) => {
@@ -80,7 +120,7 @@ router.delete("/:id", (req, res) => {
         DELETE FROM treadmills WHERE id=${id}
       `
     )
-    .then(() => res.send("se elimino el review correctamente"))
+    .then(() => res.send("the review was successfully removed"))
     .catch((error) => console.log(error));
 });
 module.exports = router;
