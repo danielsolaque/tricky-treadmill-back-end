@@ -9,7 +9,12 @@ const treadmillsController = require("./controllers/treadmills.controller");
 const app = server();
 
 app.use(server.json());
-app.use(cors());
+app.use(cors({origin: "*",}));
+app.use((req, res, next) => {
+  res.header("Acces-Control-Allow-Origin", "*");
+  res.header("Acces-Control-Allow-Headers");
+  next();
+})
 
 //Making the routes:
 
