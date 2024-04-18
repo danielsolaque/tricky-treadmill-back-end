@@ -26,7 +26,7 @@ db.connect()
       );`
     )
   )
-  .then(() => console.log("Data base is properly connected"))
-  .catch((err) => console.log(err));
+  .then(() => console.log("Database is properly connected"))
+  .catch((err) => console.log("Error connecting databse", err));
 
 module.exports = db;
